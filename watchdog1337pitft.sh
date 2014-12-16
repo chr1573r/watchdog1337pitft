@@ -175,8 +175,8 @@ pinghosts() # Parses hosts.lst into variables, pings host, displays output based
 					UPFORWARD $(( XPOS4 - 2 ))
 					tput el
 					echo -e "  "$GRAY"$HOSTLAT  "
-					UPFORWARD $(( XPOS5 - 2 ))
-					echo -e "  "$DEF""$GRAY"[ "$GREEN"UP"$DEF""$GRAY" ]"$DEF""
+					UPFORWARD $(( XPOS5 - 1 ))
+					echo -e " "$DEF""$GRAY"[ "$GREEN"UP"$DEF""$GRAY" ]"$DEF""
 					HOSTSOK=$(( HOSTSOK + 1))
 				else
 					PINGCODE=$?
