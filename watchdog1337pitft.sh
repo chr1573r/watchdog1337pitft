@@ -64,9 +64,9 @@ gfx () # Used to display repeating "graphics" where needed
 			echo
 			echo
 			echo
-			echo -e ""$RED"          _       ______    "$YELLOW"__________________"$DEF""
+			echo -e ""$LIGHTRED"          _       ______    "$YELLOW"__________________"$DEF""
 			echo -e ""$RED"         | |     / / __ \  "$YELLOW"<  /__  /__  /__  /"$DEF""
-			echo -e ""$LIGHTRED"         | | /| / / / / /  "$YELLOW"/ / /_ < /_ <  / /"
+			echo -e ""$RED"         | | /| / / / / /  "$YELLOW"/ / /_ < /_ <  / /"
 			echo -e ""$RED"         | |/ |/ / /_/ /  "$YELLOW"/ /___/ /__/ / / /"
 			echo -e ""$RED"         |__/|__/_____/  "$YELLOW"/_//____/____/ /_/"$DEF""
 			echo
@@ -86,7 +86,7 @@ gfx () # Used to display repeating "graphics" where needed
 		subheader)
 				timeupdate
 				tput cup 0 0 
-				echo -e ""$RED"Watchdog"$YELLOW"1337 "$RED"from "$DEF"Watching $DOMAIN @ $(hostname -s)"
+				echo -e ""$RED"Watchdog"$YELLOW"1337 "$RED"> "$DEF"Watching $DOMAIN from $(hostname -s)"
 				;;
 	esac
 }
