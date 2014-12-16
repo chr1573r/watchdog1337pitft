@@ -1,5 +1,5 @@
 #!/bin/bash
-# Watchdog 1337 monitoring script
+# Watchdog 1337 monitoring script - Pi TFT Edt.
 # Written by Christer Jonassen
 # Licensed under CC BY-NC-SA 3.0 (check LICENCE file or http://creativecommons.org/licenses/by-nc-sa/3.0/ for details.)
 # Made possible by the wise *nix people sharing their knowledge online
@@ -7,7 +7,7 @@
 # Check README for instructions
 
 # Variables
-APPVERSION="1.2"
+APPVERSION="1.0" # Based on WD1337 1.2
 REDRAW=YES
 DOMAIN=$(hostname -d) # Reads the domain part of the hostname, e.g. network.lan
 if [ -z "$DOMAIN" ]; then DOMAIN=hosts; fi # If domain part of hostname is blank, set text to "hosts"
@@ -33,6 +33,21 @@ RED="\x1b[31;11m"
 LIGHTYELLOW="\x1b[33;01m"
 YELLOW="\x1b[33;11m"
 
+# TFT Edt spesific
+XPOS1=0
+XPOS2=10
+XPOS3=20
+XPOS4=37
+XPOS5=47
+LOOP=true
+
+# TFT layout helper comments
+#NAME      LOCATION  ADDRESS          LATENCY   STATUS
+#                                     [  Pinging...  ]
+#Raspi123  Room1234  192.166.166.166  0.577 ms  [ UP ]
+#0         1         2         3         4         5   X
+#012345678901234567890123456789012345678901234567890123
+
 ##################
 # FUNCTIONS BEGIN:
 
@@ -41,57 +56,38 @@ gfx () # Used to display repeating "graphics" where needed
 	case "$1" in
 		
 		splash)
+			reset
 			clear
 			echo
 			echo
 			echo
-			echo          
 			echo
 			echo
 			echo
+			echo -e ""$RED"          _       ______    "$YELLOW"__________________"$DEF""
+			echo -e ""$RED"         | |     / / __ \  "$YELLOW"<  /__  /__  /__  /"$DEF""
+			echo -e ""$LIGHTRED"         | | /| / / / / /  "$YELLOW"/ / /_ < /_ <  / /"
+			echo -e ""$RED"         | |/ |/ / /_/ /  "$YELLOW"/ /___/ /__/ / / /"
+			echo -e ""$RED"         |__/|__/_____/  "$YELLOW"/_//____/____/ /_/"$DEF""
 			echo
-			echo -e ""$RED"    _       _____  ______________  ______  ____  ______"$YELLOW"    __________________"$DEF""
-			echo -e ""$RED"   | |     / /   |/_  __/ ____/ / / / __ \/ __ \/ ____/ "$YELLOW"  <  /__  /__  /__  /"$DEF""
-			echo -e ""$LIGHTRED"   | | /| / / /| | / / / /   / /_/ / / / / / / / / __  "$LIGHTYELLOW"   / / /_ < /_ <  / /"$DEF""
-			echo -e ""$LIGHTRED"   | |/ |/ / ___ |/ / / /___/ __  / /_/ / /_/ / /_/ /  "$LIGHTYELLOW"  / /___/ /__/ / / /"$DEF""
-			echo -e ""$LIGHTRED"   |__/|__/_/  |_/_/  \____/_/ /_/_____/\____/\____/   "$LIGHTYELLOW" /_//____/____/ /_/"$DEF""
-			echo
-			echo -e "          "$RED"WATCHDOG "$YELLOW"1337 "$GRAY"Version $APPVERSION - "$RED"Cj Designs"$GRAY"/"$YELLOW"CSDNSERVER.COM"$GRAY" - 2014"
-			sleep 2
+			echo -e "           "$RED"Watchdog"$YELLOW"1337 "$DEF"-- "$GREEN"Pi TFT Edition"$DEF""
+			echo -e "          "$RED"Cj Designs"$GRAY"/"$YELLOW"CSDNSERVER.COM"$GRAY" - 2014"
+			sleep 3
 			clear
-			
 			;;
 		
 		line)
-			echo -e ""$DEF""$RED"--------------------------------------------------------------------------------"$DEF""
+			echo -e ""$DEF""$RED"-----------------------------------------------------"$DEF""
 			;;
 
 		header)
 			clear
-			if [[ "$SLIM" != "1" ]]; then
-				echo -e ""$RED"  _       _____  ______________  ______  ____  ______"$YELLOW"   __________________"$DEF""
-				echo -e ""$RED" | |     / /   |/_  __/ ____/ / / / __ \/ __ \/ ____/ "$YELLOW" <  /__  /__  /__  /"$DEF""
-				echo -e ""$RED" | | /| / / /| | / / / /   / /_/ / / / / / / / / __  "$YELLOW"  / / /_ < /_ <  / /"$DEF""
-				echo -e ""$RED" | |/ |/ / ___ |/ / / /___/ __  / /_/ / /_/ / /_/ /  "$YELLOW" / /___/ /__/ / / /"$DEF""
-				echo -e ""$RED" |__/|__/_/  |_/_/  \____/_/ /_/_____/\____/\____/   "$YELLOW"/_//____/____/ /_/"$DEF""
-				echo
-			fi
 			;;
 		subheader)
-			if [[ "$SLIM" != "1" ]]; then
-				timeupdate
-				tput cup 6 0
-				echo -e "$RED""///"$GRAY" Watching "$YELLOW"$DOMAIN"$GRAY" from "$YELLOW""$(hostname -s)" "$RED"/// "$GRAY"Load:$(uptime | awk -F'load average:' '{ print $2 }')"$RED" ///"$GRAY" $HM"$DEF""
-				echo
-				echo
-			else
 				timeupdate
 				tput cup 0 0 
-				echo -e ""$RED"/// Watchdog "$YELLOW"1337 "$RED"///"$GRAY" Watching "$YELLOW"$DOMAIN"$GRAY" from "$YELLOW""$(hostname -s)""
-				#tput cup 1 0
-				#echo -e "$RED""///"$GRAY" Watching "$YELLOW"$DOMAIN"$GRAY" from "$YELLOW""$(hostname -s)" "$RED"/// "$GRAY"Load:$(uptime | awk -F'load average:' '{ print $2 }')"$RED" ///"$GRAY" $HM"$DEF""
-			fi
-			;;
+				echo -e ""$RED"Watchdog"$YELLOW"1337 "$RED"from "$DEF"Watching $DOMAIN @ $(hostname -s)"
+				;;
 	esac
 }
 
@@ -109,26 +105,21 @@ timeupdate() # Sets current time into different variables. Used for timestamping
 
 printheader() # Draw the header (column labels)
 {
-	if [[ "$SLIM" != "1" ]]; then
-		HEADYPOS=9
-	else
-		HEADYPOS=2
-	fi
-	tput cup $HEADYPOS 0
+	HEADYPOS=2
+	tput cup $HEADYPOS $XPOS1
 	echo -e ""$DEF""$LIGHTYELLOW"NAME"
-	tput cup $HEADYPOS 15
+	tput cup $HEADYPOS $XPOS2
 	echo -e "$COL2"
-	tput cup $HEADYPOS 36
+	tput cup $HEADYPOS $XPOS3
 	echo -e "ADDRESS"
-	tput cup $HEADYPOS 54
-	echo -e "AVG.LATENCY"
-	tput cup $HEADYPOS 73
+	tput cup $HEADYPOS $XPOS4
+	echo -e "LATENCY"
+	tput cup $HEADYPOS $XPOS5
 	echo -e "STATUS"$DEF""
 	gfx line
 }
 
-
-upforward() # Move up one line in terminal and jump to horisontal posistion specified
+UPFORWARD() # Move up one line in terminal and jump to horisontal posistion specified
 {
 	#
 	tput cup $Y $1
@@ -147,11 +138,7 @@ termreset()
 
 pinghosts() # Parses hosts.lst into variables, pings host, displays output based on ping result
 {
-	if [[ "$SLIM" != "1" ]]; then
-		Y=10
-	else
-		Y=3
-	fi
+	Y=3
 	HOSTS=0
 	HOSTSOK=0
 	HOSTSDOWN=0
@@ -169,27 +156,27 @@ pinghosts() # Parses hosts.lst into variables, pings host, displays output based
 			#echo YOLO $HOSTENTRY BRO $HOSTDESC $HOSTLOC $HOSTIP $Y
 			if [ "$REDRAW" == "YES" ] ; then
 				tput el
-				upforward 0
+				UPFORWARD $XPOS1
 				#echo "                                                                               "
 				echo -e ""$GRAY"$HOSTDESC"
-				upforward 14
-				echo -e " "$GRAY"$HOSTLOC"
-				upforward 35
-				echo -e " "$GRAY"$HOSTIP"
+				UPFORWARD $(( XPOS2 - 2 ))
+				echo -e "  "$GRAY"$HOSTLOC"
+				UPFORWARD $(( XPOS3 - 2 ))
+				echo -e "  "$GRAY"$HOSTIP"
 			fi
 			
-			upforward 53	
-			echo -e " "$WHITE"[   "$LIGHTYELLOW"Ping in progress..  "$WHITE"]"$DEF""
+			UPFORWARD $((  XPOS4 - 2  ))	
+			echo -e "  "$WHITE"[  "$LIGHTYELLOW"Pinging..."$WHITE"  ]"$DEF""
 			# Currently, we execute ping up to two times per host. This is due to parcing replacing the exit code from ping. Hopefully a better solution will be found later.
 			ping -q -c $PING_COUNT -n -i $PING_INTERVAL -W $PING_TIMEOUT $HOSTIP &> /dev/null	# Ping first to get exit code
 				if [ $? == 0 ]; then
 					HOSTLAT=$(ping -q -c $PING_COUNT -n -i $PING_INTERVAL -W $PING_TIMEOUT $HOSTIP | tail -1 | awk '{print $4}' | cut -d '/' -f 2) &> /dev/null # ping again to get avg latency parced
 					HOSTLAT="$HOSTLAT ms"
-					upforward 53
+					UPFORWARD $(( XPOS4 - 2 ))
 					tput el
-					echo -e " "$GRAY"$HOSTLAT"
-					upforward 63
-					echo -e "          "$DEF""$GRAY"[ "$GREEN"UP"$DEF""$GRAY" ] "$DEF""
+					echo -e "  "$GRAY"$HOSTLAT  "
+					UPFORWARD $(( XPOS5 - 2 ))
+					echo -e "  "$DEF""$GRAY"[ "$GREEN"UP"$DEF""$GRAY" ]"$DEF""
 					HOSTSOK=$(( HOSTSOK + 1))
 				else
 					PINGCODE=$?
@@ -197,18 +184,18 @@ pinghosts() # Parses hosts.lst into variables, pings host, displays output based
 #					tput bold
 #					tput setab 1
 #					tput setaf 7
-#					upforward 0
+#					UPFORWARD $((  0
 #					echo "                                                                               "
-					upforward 0
+					UPFORWARD 0
 					echo -e ""$DEF""$LIGHTRED"$HOSTDESC"
-					upforward 14
-					echo -e " "$DEF""$LIGHTRED"$HOSTLOC"
-					upforward 35
-					echo -e " "$DEF""$LIGHTRED"$HOSTIP"
-					upforward 53
-					echo -e " "$DEF""$LIGHTRED"Ping exitcode: $PINGCODE"
-					upforward 70
-					echo -e "   "$DEF""$GRAY"["$DEF""$LIGHTRED"DOWN"$DEF""$GRAY"] "$DEF""
+					UPFORWARD $(( XPOS2 - 2 ))
+					echo -e "  "$DEF""$LIGHTRED"$HOSTLOC"
+					UPFORWARD $(( XPOS3 - 2 ))
+					echo -e "  "$DEF""$LIGHTRED"$HOSTIP"
+					UPFORWARD $(( XPOS4 - 2 ))
+					echo -e "  "$DEF""$LIGHTRED"PingError"
+					UPFORWARD $(( XPOS5 - 1 ))
+					echo -e " "$DEF""$GRAY"["$DEF""$LIGHTRED"DOWN"$DEF""$GRAY"]"$DEF""
 					HOSTSDOWN=$(( HOSTSDOWN + 1))
 					REDRAW=YES # Redraw next host pinged
 				fi
@@ -230,25 +217,29 @@ summarynext() #Displays a status summary and statistics and waits the number of 
 	else
 		echo -e "$RED""///"$YELLOW" SUMMARY @ $HMS: "$DEF""$LIGHTGRAY"$HOSTSDOWN"$DEF""$GRAY" of "$DEF""$LIGHTGRAY"$HOSTS"$DEF""$GRAY" hosts are "$LIGHTRED"DOWN"$DEF" "
 	fi
-	tput sc
-	COUNTDOWN=$REFRESHRATE
-	COUNTERWITHINACOUNTER=10 			#yodawg
-	until [ $COUNTDOWN == 0 ]; do
-		echo -e -n "$RED""--""$YELLOW""> "$GRAY"Next check is scheduled in "$LIGHTYELLOW"$COUNTDOWN"$DEF" "$GRAY"second(s).    (Press [CTRL+C] to exit..)"$DEF""
-		sleep 1
-		if [ $COUNTERWITHINACOUNTER == 0 ]; then gfx subheader; COUNTERWITHINACOUNTER=10; fi
-		COUNTDOWN=$(( COUNTDOWN - 1 ))
-		COUNTERWITHINACOUNTER=$(( COUNTERWITHINACOUNTER - 1 ))
-		tput rc
-		tput el
-	done
-	CURRENTCOLUMNS=$(tput cols)
-	CURRENTLINES=$(tput lines)
-	if [ "$PREVIOUSCOLUMNS" != "$CURRENTCOLUMNS" ]; then
-		termreset
+	if [[ "$LOOP" = true  ]]; then
+		tput sc
+		COUNTDOWN=$REFRESHRATE
+		COUNTERWITHINACOUNTER=10 			#yodawg
+		until [ $COUNTDOWN == 0 ]; do
+			echo -e -n "$RED""--""$YELLOW""> "$GRAY"Next check is scheduled in "$LIGHTYELLOW"$COUNTDOWN"$DEF" "$GRAY"second(s)."$DEF""
+			sleep 1
+			if [ $COUNTERWITHINACOUNTER == 0 ]; then gfx subheader; COUNTERWITHINACOUNTER=10; fi
+			COUNTDOWN=$(( COUNTDOWN - 1 ))
+			COUNTERWITHINACOUNTER=$(( COUNTERWITHINACOUNTER - 1 ))
+			tput rc
+			tput el
+		done
+		CURRENTCOLUMNS=$(tput cols)
+		CURRENTLINES=$(tput lines)
+		if [ "$PREVIOUSCOLUMNS" != "$CURRENTCOLUMNS" ]; then
+			termreset
 
-	elif [ "$PREVIOUSLINES" != "$CURRENTLINES" ]; then
-		termreset
+		elif [ "$PREVIOUSLINES" != "$CURRENTLINES" ]; then
+			termreset
+		fi
+	else
+		sleep $REFRESHRATE
 	fi
 }
 
@@ -261,7 +252,6 @@ summarynext() #Displays a status summary and statistics and waits the number of 
 
 trap "{ reset; clear;echo Watchdog1337 $APPVERSION terminated at $(date); exit; }" SIGINT SIGTERM EXIT # Set trap for catching Ctrl-C and kills, so we can reset terminal upon exit
 
-clear
 gfx splash # Display splash screen with logo
 
 echo Loading configuration.. # Read from settings.cfg, if exists
@@ -269,23 +259,28 @@ if [ -f settings.cfg ] ; then source settings.cfg; fi
 if [ -n "$1" ]; then REFRESHRATE=$1; fi # Sets $1 as refreshrate, if it is not null. Overrides value set in settings.cfg
 
 echo Validating configuration... # Check if important variables contain anything. If they are empty, default values will be set.
-if [ -z "$COL2" ]; then echo -e ""$YELLOW"WATCHDOG Warning: "$GRAY"COL2 not set, changing COL2 to "LOCATION"."$DEF""; COL2=LOCATION; sleep 1; fi
-if [ -z "$REFRESHRATE" ]; then echo -e ""$YELLOW"WATCHDOG Warning: "$GRAY"REFRESHRATE not set, changing REFRESHRATE to 5 seconds."$DEF""; REFRESHRATE=5; sleep 1; fi
-if [ -z "$CUSTOMCMDENABLE" ]; then echo -e ""$YELLOW"WATCHDOG Warning: "$GRAY"CUSTOMCMDENABLE not set, changing CUSTOMCMDENABLE to 0."$DEF""; CUSTOMCMDENABLE=0; sleep 1; fi
-if [ -z "$CUSTOMCMD" ]; then echo -e ""$YELLOW"WATCHDOG Warning: "$GRAY"CUSTOMCMD not set, changing CUSTOMCMDENABLE to 0."$DEF""; CUSTOMCMDENABLE=0; sleep 1; fi
-if [ -z "$PING_COUNT" ]; then echo -e ""$YELLOW"WATCHDOG Warning: "$GRAY"PING_COUNT not set, changing PING_COUNT to 3."$DEF""; PING_COUNT=3; sleep 1; fi
-if [ -z "$PING_INTERVAL" ]; then echo -e ""$YELLOW"WATCHDOG Warning: "$GRAY"PING_INTERVAL not set, changing PING_INTERVAL to 0.3."$DEF""; PING_INTERVAL=0.3; sleep 1; fi
-if [ -z "$PING_TIMEOUT" ]; then echo -e ""$YELLOW"WATCHDOG Warning: "$GRAY"PING_TIMEOUT not set, changing PING_TIMEOUT to 1."$DEF""; PING_TIMEOUT=1; sleep 1; fi
+if [ -z "$COL2" ]; then echo -e ""$YELLOW"WATCHDOG Warning:"; echo -e ""$GRAY"COL2 not set, changing COL2 to "LOCATION"."$DEF""; COL2=LOCATION; sleep 1; fi
+if [ -z "$REFRESHRATE" ]; then echo -e ""$YELLOW"WATCHDOG Warning:"; echo -e ""$GRAY"REFRESHRATE not set, "; echo -e "changing REFRESHRATE to 5 seconds."$DEF""; REFRESHRATE=5; sleep 1; fi
+if [ -z "$CUSTOMCMDENABLE" ]; then echo -e ""$YELLOW"WATCHDOG Warning:"; echo -e ""$GRAY"CUSTOMCMDENABLE not set, "; echo -e "changing CUSTOMCMDENABLE to 0."$DEF""; CUSTOMCMDENABLE=0; sleep 1; fi
+if [ -z "$CUSTOMCMD" ]; then echo -e ""$YELLOW"WATCHDOG Warning:"; echo -e ""$GRAY"CUSTOMCMD not set, changing CUSTOMCMDENABLE to 0."$DEF""; CUSTOMCMDENABLE=0; sleep 1; fi
+if [ -z "$PING_COUNT" ]; then echo -e ""$YELLOW"WATCHDOG Warning:"; echo -e ""$GRAY"PING_COUNT not set, changing PING_COUNT to 3."$DEF""; PING_COUNT=3; sleep 1; fi
+if [ -z "$PING_INTERVAL" ]; then echo -e ""$YELLOW"WATCHDOG Warning:"; echo -e ""$GRAY"PING_INTERVAL not set, changing PING_INTERVAL to 0.3."$DEF""; PING_INTERVAL=0.3; sleep 1; fi
+if [ -z "$PING_TIMEOUT" ]; then echo -e ""$YELLOW"WATCHDOG Warning:"; echo -e ""$GRAY"PING_TIMEOUT not set, changing PING_TIMEOUT to 1."$DEF""; PING_TIMEOUT=1; sleep 1; fi
+if [ -z "$RUN_ONCE" ]; then echo -e ""$YELLOW"WATCHDOG Warning:"; echo -e ""$GRAY"RUN_ONCE not set, changing RUN_ONCE to 0."$DEF""; RUN_ONCE=0; sleep 1; fi
 
 echo Checking hosts.lst..   # Read from hosts.lst, if exists. Otherwise terminate script
-if [ -f hosts.lst ]; then echo "Starting Watchdog1337.."; else echo -e ""$RED"WATCHDOG ERROR: "$GRAY"Could not locate hosts.lst, terminating script.."$DEF""; sleep 3; exit; fi
+if [ -f hosts.lst ]; then echo "Starting Watchdog1337.."; else echo -e ""$RED"WATCHDOG ERROR:"; echo -e ""$GRAY"Could not locate hosts.lst, terminating script.."$DEF""; sleep 3; exit; fi
 
 clear
 gfx header # Display top logo
 
-while true # The script will repeat below until CTRL-C is pressed
+while [[ "$LOOP" = true ]] # The script will repeat below until CTRL-C is pressed
 	do
 		gfx subheader # Display information line below logo
 		pinghosts # Read hosts.lst, ping hosts and output results
+		if [[ "$RUN_ONCE" == "1" ]]; then
+			LOOP=false
+		fi
 		summarynext # Show summary, wait, continue
+
 	done
