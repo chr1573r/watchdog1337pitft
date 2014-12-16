@@ -64,7 +64,7 @@ gfx () # Used to display repeating "graphics" where needed
 			echo
 			echo
 			echo
-			echo -e ""$LIGHTRED"          _       ______    "$YELLOW"__________________"$DEF""
+			echo -e ""$RED"          _       ______    "$YELLOW"__________________"$DEF""
 			echo -e ""$RED"         | |     / / __ \  "$YELLOW"<  /__  /__  /__  /"$DEF""
 			echo -e ""$RED"         | | /| / / / / /  "$YELLOW"/ / /_ < /_ <  / /"
 			echo -e ""$RED"         | |/ |/ / /_/ /  "$YELLOW"/ /___/ /__/ / / /"
