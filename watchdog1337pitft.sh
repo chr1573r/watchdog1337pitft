@@ -274,7 +274,7 @@ if [ -f hosts.lst ]; then echo "Starting Watchdog1337.."; else echo -e ""$RED"WA
 clear
 gfx header # Display top logo
 
-while [[ "$LOOP" = true ]] # The script will repeat below until CTRL-C is pressed
+while [[ "$LOOP" == true ]] # The script will repeat below until CTRL-C is pressed
 	do
 		gfx subheader # Display information line below logo
 		pinghosts # Read hosts.lst, ping hosts and output results
