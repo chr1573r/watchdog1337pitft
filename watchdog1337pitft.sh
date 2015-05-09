@@ -216,6 +216,12 @@ summarynext() #Displays a status summary and statistics and waits the number of 
 		echo -e "$RED""///"$YELLOW" SUMMARY @ $HMS: "$DEF""$LIGHTGRAY"$HOSTSOK"$DEF""$GRAY" of "$DEF""$LIGHTGRAY"$HOSTS"$DEF""$GRAY" hosts are "$LIGHTGREEN"UP"$DEF" "
 	else
 		echo -e "$RED""///"$YELLOW" SUMMARY @ $HMS: "$DEF""$LIGHTGRAY"$HOSTSDOWN"$DEF""$GRAY" of "$DEF""$LIGHTGRAY"$HOSTS"$DEF""$GRAY" hosts are "$LIGHTRED"DOWN"$DEF" "
+		if [[  -f  ~/container/notifysh/notify.sh ]]; then
+			echo "// WATCHDOG1337 //" >> ~/container/persistence/notifysh/notify.txt
+			echo "SUMMARY @ $NOWSTAMP:" >> ~/container/persistence/notifysh/notify.txt
+			echo "$HOSTSDOWN of $HOSTS hosts are DOWN " >> ~/container/persistence/notifysh/notify.txt
+			echo >> ~/container/persistence/notifysh/notify.txt
+		fi
 	fi
 	if [[ "$LOOP" = true  ]]; then
 		tput sc
