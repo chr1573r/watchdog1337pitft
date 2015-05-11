@@ -71,7 +71,7 @@ gfx () # Used to display repeating "graphics" where needed
 			echo -e ""$RED"         |__/|__/_____/  "$YELLOW"/_//____/____/ /_/"$DEF""
 			echo
 			echo -e "           "$RED"Watchdog"$YELLOW"1337 "$DEF"-- "$GREEN"Pi TFT Edition"$DEF""
-			echo -e "          "$RED"Cj Designs"$GRAY"/"$YELLOW"CSDNSERVER.COM"$GRAY" - 2014"
+			echo -e "          "$RED"Cj Designs"$GRAY"/"$YELLOW"CSDNSERVER.COM"$GRAY" - 2015"
 			sleep 3
 			clear
 			;;
@@ -147,6 +147,9 @@ pinghosts() # Parses hosts.lst into variables, pings host, displays output based
 
 	while read -r HOSTENTRY
 		do
+			if [[ "$Y" == "18" ]]; then
+				Y=3
+			fi
 			Y=$(( Y + 1 ))
 			HOSTS=$(( HOSTS + 1))
 			
@@ -181,11 +184,6 @@ pinghosts() # Parses hosts.lst into variables, pings host, displays output based
 				else
 					PINGCODE=$?
 					tput el
-#					tput bold
-#					tput setab 1
-#					tput setaf 7
-#					UPFORWARD $((  0
-#					echo "                                                                               "
 					UPFORWARD 0
 					echo -e ""$DEF""$LIGHTRED"$HOSTDESC"
 					UPFORWARD $(( XPOS2 - 2 ))
@@ -211,11 +209,12 @@ summarynext() #Displays a status summary and statistics and waits the number of 
 		timeupdate
 		eval "$CUSTOMCMD"
 	fi
+	tput cup 50 0
 	tput el
 	if [ "$HOSTSOK" == "$HOSTS" ] ; then
-		echo -e "$RED""///"$YELLOW" SUMMARY @ $HMS: "$DEF""$LIGHTGRAY"$HOSTSOK"$DEF""$GRAY" of "$DEF""$LIGHTGRAY"$HOSTS"$DEF""$GRAY" hosts are "$LIGHTGREEN"UP"$DEF" "
+		echo -e -n "$RED""///"$YELLOW" SUMMARY @ $HMS: "$DEF""$LIGHTGRAY"$HOSTSOK"$DEF""$GRAY" of "$DEF""$LIGHTGRAY"$HOSTS"$DEF""$GRAY" hosts are "$LIGHTGREEN"UP"$DEF" "
 	else
-		echo -e "$RED""///"$YELLOW" SUMMARY @ $HMS: "$DEF""$LIGHTGRAY"$HOSTSDOWN"$DEF""$GRAY" of "$DEF""$LIGHTGRAY"$HOSTS"$DEF""$GRAY" hosts are "$LIGHTRED"DOWN"$DEF" "
+		echo -e -n "$RED""///"$YELLOW" SUMMARY @ $HMS: "$DEF""$LIGHTGRAY"$HOSTSDOWN"$DEF""$GRAY" of "$DEF""$LIGHTGRAY"$HOSTS"$DEF""$GRAY" hosts are "$LIGHTRED"DOWN"$DEF" "
 		if [[  -f  ~/container/notifysh/notify.sh ]]; then
 			echo "// WATCHDOG1337 //" >> ~/container/persistence/notifysh/notify.txt
 			echo "SUMMARY @ $(date)" >> ~/container/persistence/notifysh/notify.txt
